@@ -17,22 +17,35 @@ router.post("/", async (req, res) => {
 
         const userQuestion = question.toLowerCase();
 
-        const foundFAQ = faqs.find((faq) => {
+        let bestFAQ = null;
+        let highestScore = 0;
 
-            // Check the original question
+        for (const faq of faqs) {
+
+            let score = 0;
+
+            // Check original question
             if (faq.question.toLowerCase().includes(userQuestion)) {
-                return true;
+                score += 2;
             }
 
             // Check keywords
-            return faq.keywords.some((keyword) =>
-                userQuestion.includes(keyword.toLowerCase())
-            );
-        });
+            for (const keyword of faq.keywords) {
+                if (userQuestion.includes(keyword.toLowerCase())) {
+                    score++;
+                }
+            }
 
-        if (foundFAQ) {
+            // Keep the FAQ with the highest score
+            if (score > highestScore) {
+                highestScore = score;
+                bestFAQ = faq;
+            }
+        }
+
+        if (bestFAQ) {
             return res.json({
-                answer: foundFAQ.answer
+                answer: bestFAQ.answer
             });
         }
 
